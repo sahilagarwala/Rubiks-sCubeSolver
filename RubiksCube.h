@@ -22,6 +22,8 @@ using namespace std;
  */
 class RubiksCube {
 public:
+    // Virtual destructor for proper cleanup of derived classes
+    virtual ~RubiksCube() = default;
 
     // Enum to represent each face of the Rubik's Cube
     enum class FACE {

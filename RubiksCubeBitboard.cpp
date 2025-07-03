@@ -27,52 +27,22 @@ private:
         bitboard[s1] = (bitboard[s1] & ~(one_8 << (8 * s1_3))) | (clr3 << (8 * s1_3));
     }
 
-    int get5bitCorner(string corner) {
-        int ret = 0;
-        string actual_str;
-        for (auto c: corner) {
-            if (c != 'W' && c != 'Y') continue;
-            actual_str.push_back(c);
-            if (c == 'Y') ret |= (1 << 2);
-        }
-        for (auto c: corner) {
-            if (c != 'R' && c != 'O') continue;
-            if (c == 'O') ret |= (1 << 1);
-        }
-        for (auto c: corner) {
-            if (c != 'B' && c != 'G') continue;
-            if (c == 'G') ret |= (1 << 0);
-        }
-        if (corner[1] == actual_str[0]) ret |= (1 << 3);
-        else if (corner[2] == actual_str[0]) ret |= (1 << 4);
-        return ret;
-    }
-
 public:
     uint64_t bitboard[6]{};
 
     RubiksCubeBitboard() {
-        for (int side = 0; side < 6; side++) {
-            uint64_t clr = 1 << side;
-            bitboard[side] = 0;
-            for (int faceIdx = 0; faceIdx < 8; faceIdx++) {
-                bitboard[side] |= clr << (8 * faceIdx);
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 9; j++) {
+                bitboard[i] |= (uint64_t(i) << (8 * j));
             }
-            solved_side_config[side] = bitboard[side];
+            solved_side_config[i] = bitboard[i];
         }
     }
 
     COLOR getColor(FACE face, unsigned row, unsigned col) const override {
         int idx = arr[row][col];
-        if (idx == 8) return (COLOR)((int) face);
-        uint64_t side = bitboard[(int) face];
-        uint64_t color = (side >> (8 * idx)) & one_8;
-        int bit_pos = 0;
-        while (color != 0) {
-            color = color >> 1;
-            bit_pos++;
-        }
-        return (COLOR)(bit_pos - 1);
+        uint64_t color = (bitboard[(int)face] >> (8 * idx)) & one_8;
+        return COLOR(color);
     }
 
     bool isSolved() const override {
@@ -153,13 +123,13 @@ public:
     RubiksCube &r() override {
         this->rotateFace(3);
         uint64_t clr1 = (bitboard[0] & (one_8 << (8 * 2))) >> (8 * 2);
-        uint64_t clr2 = (bitboard[0] & (one_8 << (8 * 3))) >> (8 * 3);
-        uint64_t clr3 = (bitboard[0] & (one_8 << (8 * 4))) >> (8 * 4);
-        this->rotateSide(0, 2, 3, 4, 2, 2, 3, 4);
-        this->rotateSide(2, 2, 3, 4, 5, 2, 3, 4);
-        this->rotateSide(5, 2, 3, 4, 4, 7, 6, 0);
-        bitboard[4] = (bitboard[4] & ~(one_8 << (8 * 7))) | (clr1 << (8 * 7));
-        bitboard[4] = (bitboard[4] & ~(one_8 << (8 * 6))) | (clr2 << (8 * 6));
+        uint64_t clr2 = (bitboard[0] & (one_8 << (8 * 1))) >> (8 * 1);
+        uint64_t clr3 = (bitboard[0] & (one_8 << (8 * 0))) >> (8 * 0);
+        this->rotateSide(0, 2, 1, 0, 2, 2, 1, 0);
+        this->rotateSide(2, 2, 1, 0, 5, 2, 1, 0);
+        this->rotateSide(5, 2, 1, 0, 4, 6, 7, 8);
+        bitboard[4] = (bitboard[4] & ~(one_8 << (8 * 6))) | (clr1 << (8 * 6));
+        bitboard[4] = (bitboard[4] & ~(one_8 << (8 * 7))) | (clr2 << (8 * 7));
         bitboard[4] = (bitboard[4] & ~(one_8 << (8 * 0))) | (clr3 << (8 * 0));
         return *this;
     }
@@ -177,11 +147,11 @@ public:
     RubiksCube &b() override {
         this->rotateFace(4);
         uint64_t clr1 = (bitboard[0] & (one_8 << (8 * 0))) >> (8 * 0);
-        uint64_t clr2 = (bitboard[0] & (one_8 << (8 * 1))) >> (8 * 1);
-        uint64_t clr3 = (bitboard[0] & (one_8 << (8 * 2))) >> (8 * 2);
-        this->rotateSide(0, 0, 1, 2, 3, 2, 3, 4);
-        this->rotateSide(3, 2, 3, 4, 5, 4, 5, 6);
-        this->rotateSide(5, 4, 5, 6, 1, 6, 7, 0);
+        uint64_t clr2 = (bitboard[0] & (one_8 << (8 * 7))) >> (8 * 7);
+        uint64_t clr3 = (bitboard[0] & (one_8 << (8 * 6))) >> (8 * 6);
+        this->rotateSide(0, 0, 7, 6, 3, 2, 3, 4);
+        this->rotateSide(3, 2, 3, 4, 5, 8, 1, 2);
+        this->rotateSide(5, 8, 1, 2, 1, 6, 7, 0);
         bitboard[1] = (bitboard[1] & ~(one_8 << (8 * 6))) | (clr1 << (8 * 6));
         bitboard[1] = (bitboard[1] & ~(one_8 << (8 * 7))) | (clr2 << (8 * 7));
         bitboard[1] = (bitboard[1] & ~(one_8 << (8 * 0))) | (clr3 << (8 * 0));
@@ -235,27 +205,14 @@ public:
         }
         return *this;
     }
-
-    uint64_t getCorners() {
-        uint64_t ret = 0;
-
-        ret |= get5bitCorner("WFR"); ret <<= 5;
-        ret |= get5bitCorner("WFL"); ret <<= 5;
-        ret |= get5bitCorner("WBR"); ret <<= 5;
-        ret |= get5bitCorner("WBL"); ret <<= 5;
-        ret |= get5bitCorner("YFR"); ret <<= 5;
-        ret |= get5bitCorner("YFL"); ret <<= 5;
-        ret |= get5bitCorner("YBR"); ret <<= 5;
-        ret |= get5bitCorner("YBL"); ret <<= 5;
-
-        return ret;
-    }
 };
 
 struct HashBitboard {
     size_t operator()(const RubiksCubeBitboard &r1) const {
-        uint64_t final_hash = r1.bitboard[0];
-        for (int i = 1; i < 6; i++) final_hash ^= r1.bitboard[i];
-        return (size_t) final_hash;
+        uint64_t hash_val = 0;
+        for (int i = 0; i < 6; i++) {
+            hash_val ^= r1.bitboard[i] + 0x9e3779b9 + (hash_val << 6) + (hash_val >> 2);
+        }
+        return hash_val;
     }
 };
