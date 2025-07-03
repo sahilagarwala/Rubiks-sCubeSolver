@@ -1,0 +1,2 @@
+# Rubiks-sCubeSolver
+newrepo
