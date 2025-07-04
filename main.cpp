@@ -1,6 +1,9 @@
+
 #include "BFSSolver.h"
 #include "DFSSolver.h"
 #include "IDDFSSolver.h"
+#include "IdastarSolver.cpp"
+#include "CornerDBMaker.h"
 #include "RubiksCube1dArray.cpp"
 #include "RubiksCube3dArray.cpp"
 #include "RubiksCubeBitboard.cpp"
@@ -20,7 +23,7 @@ void printMoves(const vector<RubiksCube::MOVE> &moves, T &cube) {
 
 int main() {
   srand(time(NULL));
-  int shuffleCount = 5; // Increased for proper shuffling
+  int shuffleCount = 7; // Increased for proper shuffling
   int choice;
 
   cout << "Choose a representation and solver:\n";
@@ -33,7 +36,11 @@ int main() {
   cout << "7. Bitboard + BFS\n";
   cout << "8. Bitboard + DFS\n";
   cout << "9. Bitboard + IDDFS\n";
-  cout << "Enter your choice (1-9): ";
+  cout << "10. 1D + IDA* (Korf Algorithm)\n";
+  cout << "11. 3D + IDA* (Korf Algorithm)\n";
+  cout << "12. Bitboard + IDA* (Korf Algorithm)\n";
+  cout << "13. Generate Corner Pattern Database\n";
+  cout << "Enter your choice (1-13): ";
   cin >> choice;
 
   cout << "==============================\n";
@@ -198,9 +205,127 @@ int main() {
     }
     break;
   }
+  case 10: {
+    cout << "1D + IDA* (Korf Algorithm)\n";
+    RubiksCube1dArray cube;
+    cout << "Shuffling cube with " << shuffleCount << " moves...\n";
+    vector<RubiksCube::MOVE> shuffleMoves;
+    for (int i = 0; i < shuffleCount; i++) {
+      RubiksCube::MOVE move = RubiksCube::MOVE(rand() % 18);
+      shuffleMoves.push_back(move);
+      cube.move(move);
+      cout << RubiksCube::getMove(move) << " ";
+    }
+    cout << "\nCube solved after shuffling? " << (cube.isSolved() ? "YES" : "NO") << "\n";
+    
+    // Try to load corner database
+    CornerDBMaker dbMaker;
+    CornerPatternDatabase* cornerDB = nullptr;
+    if (dbMaker.loadFromFile("corner_db.dat")) {
+      cornerDB = &dbMaker.getDatabase();
+      cout << "Corner pattern database loaded successfully.\n";
+    } else {
+      cout << "Corner pattern database not found. Running without heuristic.\n";
+    }
+    
+    cout << "Starting IDA* solve (max depth 15)...\n";
+    IdastarSolver<RubiksCube1dArray, Hash1d> solver(cube, cornerDB, 15);
+    auto moves = solver.solve();
+    if (moves.empty()) {
+      cout << "No solution found within depth limit.\n";
+    } else {
+      cout << "Solution found with " << moves.size() << " moves: ";
+      printMoves(moves, cube);
+    }
+    break;
+  }
+  case 11: {
+    cout << "3D + IDA* (Korf Algorithm)\n";
+    RubiksCube3dArray cube;
+    cout << "Shuffling cube with " << shuffleCount << " moves...\n";
+    vector<RubiksCube::MOVE> shuffleMoves;
+    for (int i = 0; i < shuffleCount; i++) {
+      RubiksCube::MOVE move = RubiksCube::MOVE(rand() % 18);
+      shuffleMoves.push_back(move);
+      cube.move(move);
+      cout << RubiksCube::getMove(move) << " ";
+    }
+    cout << "\nCube solved after shuffling? " << (cube.isSolved() ? "YES" : "NO") << "\n";
+    
+    // Try to load corner database
+    CornerDBMaker dbMaker;
+    CornerPatternDatabase* cornerDB = nullptr;
+    if (dbMaker.loadFromFile("corner_db.dat")) {
+      cornerDB = &dbMaker.getDatabase();
+      cout << "Corner pattern database loaded successfully.\n";
+    } else {
+      cout << "Corner pattern database not found. Running without heuristic.\n";
+    }
+    
+    cout << "Starting IDA* solve (max depth 15)...\n";
+    IdastarSolver<RubiksCube3dArray, Hash3d> solver(cube, cornerDB, 15);
+    auto moves = solver.solve();
+    if (moves.empty()) {
+      cout << "No solution found within depth limit.\n";
+    } else {
+      cout << "Solution found with " << moves.size() << " moves: ";
+      printMoves(moves, cube);
+    }
+    break;
+  }
+  case 12: {
+    cout << "Bitboard + IDA* (Korf Algorithm)\n";
+    RubiksCubeBitboard cube;
+    cout << "Shuffling cube with " << shuffleCount << " moves...\n";
+    vector<RubiksCube::MOVE> shuffleMoves;
+    for (int i = 0; i < shuffleCount; i++) {
+      RubiksCube::MOVE move = RubiksCube::MOVE(rand() % 18);
+      shuffleMoves.push_back(move);
+      cube.move(move);
+      cout << RubiksCube::getMove(move) << " ";
+    }
+    cout << "\nCube solved after shuffling? " << (cube.isSolved() ? "YES" : "NO") << "\n";
+    
+    // Try to load corner database
+    CornerDBMaker dbMaker;
+    CornerPatternDatabase* cornerDB = nullptr;
+    if (dbMaker.loadFromFile("corner_db.dat")) {
+      cornerDB = &dbMaker.getDatabase();
+      cout << "Corner pattern database loaded successfully.\n";
+    } else {
+      cout << "Corner pattern database not found. Running without heuristic.\n";
+    }
+    
+    cout << "Starting IDA* solve (max depth 15)...\n";
+    IdastarSolver<RubiksCubeBitboard, HashBitboard> solver(cube, cornerDB, 15);
+    auto moves = solver.solve();
+    if (moves.empty()) {
+      cout << "No solution found within depth limit.\n";
+    } else {
+      cout << "Solution found with " << moves.size() << " moves: ";
+      printMoves(moves, cube);
+    }
+    break;
+  }
+  case 13: {
+    cout << "Generate Corner Pattern Database\n";
+    cout << "Warning: This may take a very long time (hours/days) and require significant memory!\n";
+    cout << "Continue? (y/n): ";
+    char confirm;
+    cin >> confirm;
+    if (confirm == 'y' || confirm == 'Y') {
+      CornerDBMaker dbMaker;
+      dbMaker.generateDatabase();
+      dbMaker.saveToFile("corner_db.dat");
+      cout << "Corner database generated and saved to corner_db.dat\n";
+    } else {
+      cout << "Database generation cancelled.\n";
+    }
+    break;
+  }
   default:
     cout << "Invalid choice. Please run again and choose a number between "
-            "1-9.\n";
+            "1-13.\n";
   }
 
   return 0;
