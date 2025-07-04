@@ -1,4 +1,4 @@
-
+//RubiksCube
 #include "CornerPatternDatabase.h"
 #include "RubiksCube1dArray.cpp"
 #include <iostream>

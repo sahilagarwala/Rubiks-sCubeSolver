@@ -1,4 +1,4 @@
-
+//RubiksCube
 #ifndef CORNERDBMAKER_H
 #define CORNERDBMAKER_H
 

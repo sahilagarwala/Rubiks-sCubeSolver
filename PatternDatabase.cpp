@@ -1,4 +1,4 @@
-
+//RubiksCube
 #include "PatternDatabase.h"
 #include <queue>
 #include <iostream>

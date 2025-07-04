@@ -1,4 +1,4 @@
-
+//RubiksCube
 #ifndef NIBBLEARRAY_H
 #define NIBBLEARRAY_H
 

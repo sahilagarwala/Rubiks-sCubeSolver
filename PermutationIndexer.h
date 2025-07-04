@@ -1,4 +1,4 @@
-
+//RubiksCube
 #ifndef PERMUTATIONINDEXER_H
 #define PERMUTATIONINDEXER_H
 

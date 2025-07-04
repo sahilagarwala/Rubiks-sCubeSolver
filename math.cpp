@@ -1,4 +1,4 @@
-
+//RubiksCube
 #include "math.h"
 #include <algorithm>
 #include <numeric>

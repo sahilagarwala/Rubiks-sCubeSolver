@@ -1,4 +1,4 @@
-
+//RubiksCube
 #ifndef CORNERPATTERNDATABASE_H
 #define CORNERPATTERNDATABASE_H
 

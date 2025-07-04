@@ -1,4 +1,4 @@
-
+//RubiksCube
 #include "NibbleArray.h"
 
 NibbleArray::NibbleArray(int size) : size(size) {

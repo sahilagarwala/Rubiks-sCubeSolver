@@ -1,4 +1,4 @@
-
+//RubiksCube
 #include "RubiksCube.h"
 #include "CornerPatternDatabase.h"
 #include <vector>

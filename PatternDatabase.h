@@ -1,4 +1,4 @@
-
+//RubiksCube
 #ifndef PATTERNDATABASE_H
 #define PATTERNDATABASE_H
 
